@@ -169,8 +169,10 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si l'object n'a pas pu être désérialisé
 	 */
 	public Serializable getObject(String objectName) throws IOException, ClassNotFoundException {
-		//TODO complete
-		return null;
+		long pos = this.links.get(objectName);
+		byte[] record = readData(pos);
+		Serializable result = SerializationTools.deserialize(record);
+		return result;
 	}
 
 	/**
