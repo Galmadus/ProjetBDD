@@ -142,6 +142,9 @@ public class BDD implements AutoCloseable{
 	 */
 	private void putData(String objectName, byte[] array) throws IOException {
 		//TODO complete
+		removeObject(objectName);
+		final long position = findPosition(array);
+		this.links.put(objectName, position);
 	}
 
 	/**
