@@ -211,19 +211,8 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		int size = array.length;
-		long position = 0;
-		boolean positionFinded = false;
-		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
-			if(spaceInterval.getLength() >= size){
-				position = spaceInterval.getStartPosition();
-				positionFinded = true;
-			}
-		}
-		if(!positionFinded){
-			position = this.raf.length();
-		}
-		return position;
+		//TODO complete
+		return -1;
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -250,7 +239,13 @@ public class BDD implements AutoCloseable{
 	 */
 	private Long findPositionIntoFreeSpace(long desiredLength)
 	{
-		//TODO complete
+		long position = 0;
+		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
+			if(spaceInterval.getLength() >= desiredLength){
+				position = spaceInterval.getStartPosition();
+				return position;
+			}
+		}
 		return null;
 	}
 
