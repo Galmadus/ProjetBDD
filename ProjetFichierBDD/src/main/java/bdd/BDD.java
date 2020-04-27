@@ -234,8 +234,11 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(long desiredLength) throws IOException {
-		//TODO complete
-		return -1;
+		Long position = findPositionIntoFreeSpace(desiredLength);
+		if(position == null){
+			this.raf.length();
+		}
+		return position;
 	}
 
 	/**
