@@ -141,7 +141,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void putData(String objectName, byte[] array) throws IOException {
-		//TODO complete
 		removeObject(objectName);
 		final long position = findPosition(array);
 		this.links.put(objectName, position);
@@ -154,7 +153,9 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void writeData(byte[] data, long pos) throws IOException {
-		//TODO complete
+		this.raf.seek(pos);
+		this.raf.write(data);
+		// this.raf.close();
 	}
 
 	/**
