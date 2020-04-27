@@ -182,10 +182,22 @@ public class BDD implements AutoCloseable{
 	 * @return l'enregistrement binaire lu
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
-	private byte[] readData(long pos) throws IOException {
-
+	private byte[] readData(long pos) throws Exception {
 		//TODO complete
-		return null;
+		this.raf.seek(pos);
+		int size = 0;
+		int readInt;
+		try {
+			while(true){
+				readInt = this.raf.readInt();
+				size += readInt;
+			}
+		}catch (IOException ex){
+			ex.printStackTrace();
+		}
+		byte [] res = new byte[size];
+		this.raf.read(res);
+		return res;
 	}
 
 	/**
@@ -235,7 +247,6 @@ public class BDD implements AutoCloseable{
 		//TODO complete
 		return false;
 	}
-
 	/**
 	 * Cette fonction supprime l'objet trouvé à la position donnée en argument.
 	 * Elle commence par lire la taille des données qui suivent, puis :
