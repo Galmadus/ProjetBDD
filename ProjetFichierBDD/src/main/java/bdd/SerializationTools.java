@@ -1,6 +1,7 @@
 package bdd;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
@@ -23,6 +24,7 @@ class SerializationTools {
             ObjectOutputStream obj = new ObjectOutputStream(tab);
             obj.writeObject(o);
             obj.flush();
+            obj.close();
             return tab.toByteArray();
         } else {
             throw new NullPointerException();
@@ -42,7 +44,6 @@ class SerializationTools {
 			ByteArrayInputStream tab = new ByteArrayInputStream(data);
 			ObjectInputStream obj = new ObjectInputStream(tab);
 			return (Serializable) obj.readObject();
-
 		} else {
             throw new NullPointerException();
         }
@@ -63,7 +64,16 @@ class SerializationTools {
      */
     static byte[] serializeFreeSpaceIntervals(TreeSet<BDD.FreeSpaceInterval> freeSpaceIntervals) throws IOException {
         if (freeSpaceIntervals != null) {
-            return null;
+            ByteArrayOutputStream tab = new ByteArrayOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(tab);
+            byte[] result = new byte[0];
+            for(BDD.FreeSpaceInterval interval : freeSpaceIntervals){
+                dataOutputStream.writeUTF(String.valueOf(Integer.toBinaryString((int) interval.getStartPosition())));
+                dataOutputStream.writeUTF(String.valueOf(Integer.toBinaryString((int) interval.getLength())));
+                dataOutputStream.flush();
+                result = tab.toByteArray();
+            }
+            return result;
         } else {
             throw new NullPointerException();
         }
@@ -78,6 +88,8 @@ class SerializationTools {
      */
     static TreeSet<BDD.FreeSpaceInterval> deserializeFreeSpaceIntervals(byte[] data) throws IOException {
         if (data != null) {
+            ByteArrayInputStream tab = new ByteArrayInputStream(data);
+            DataInputStream dataInputStream = new DataInputStream(tab);
             return null;
         } else {
             throw new NullPointerException();
