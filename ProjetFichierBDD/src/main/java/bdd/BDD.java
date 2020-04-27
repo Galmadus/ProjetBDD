@@ -213,7 +213,7 @@ public class BDD implements AutoCloseable{
 	private long findPosition(byte[] array) throws IOException {
 		//TODO complete
 		int size = array.length;
-		long position;
+		long position = 0;
 		boolean positionFinded = false;
 		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
 			if(spaceInterval.getLength() >= size){
