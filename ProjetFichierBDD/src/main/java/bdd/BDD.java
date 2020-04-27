@@ -170,7 +170,12 @@ public class BDD implements AutoCloseable{
 	 */
 	public Serializable getObject(String objectName) throws IOException, ClassNotFoundException {
 		long pos = this.links.get(objectName);
-		byte[] record = readData(pos);
+		byte[] record = new byte[0];
+		try {
+			record = readData(pos);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		Serializable result = SerializationTools.deserialize(record);
 		return result;
 	}
@@ -183,7 +188,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private byte[] readData(long pos) throws Exception {
-		//TODO complete
 		this.raf.seek(pos);
 		int size = 0;
 		int readInt;
@@ -208,7 +212,19 @@ public class BDD implements AutoCloseable{
 	 */
 	private long findPosition(byte[] array) throws IOException {
 		//TODO complete
-		return -1;
+		int size = array.length;
+		long position;
+		boolean positionFinded = false;
+		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
+			if(spaceInterval.getLength() >= size){
+				position = spaceInterval.getStartPosition();
+				positionFinded = true;
+			}
+		}
+		if(!positionFinded){
+			position = this.raf.length();
+		}
+		return position;
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
