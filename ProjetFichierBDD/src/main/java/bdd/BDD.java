@@ -211,7 +211,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		//TODO complete
 		int size = array.length;
 		long position = 0;
 		boolean positionFinded = false;
