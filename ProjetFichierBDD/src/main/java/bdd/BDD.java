@@ -64,6 +64,10 @@ public class BDD implements AutoCloseable{
 			return length;
 		}
 
+		void setStartPosition(long startPosition){ this.startPosition = startPosition;}
+
+		void setLength(long length){ this.length = length;}
+
 		@Override
 		public int compareTo(FreeSpaceInterval o) {
 			return Long.compare(startPosition, o.startPosition);
@@ -278,7 +282,28 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void removeObject(long pos) throws IOException {
-		//TODO complete
+		try {
+			int size = this.readData(pos).length;
+			if( (this.raf.length()-pos) == size ){
+				// Trunk
+			}else{
+				for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
+					//Si il y a un autre espace vide a droite, on fusione
+					if(spaceInterval.getStartPosition() == (pos+size)){
+						//TODO Delete spaceInterval
+						size += spaceInterval.getLength();
+					}
+					//Si il y a un autre espace vide a gauche, on fusione
+					if(spaceInterval.getStartPosition() == (pos-size)){
+						//TODO Delete spaceInterval
+						pos = spaceInterval.getStartPosition();
+					}
+				}
+				this.freeSpaceIntervals.add(new FreeSpaceInterval(pos, size));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
