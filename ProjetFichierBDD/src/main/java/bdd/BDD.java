@@ -3,7 +3,9 @@ package bdd;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Cette classe permet d'enregistrer un tableau associatif dans un fichier.
@@ -212,7 +214,9 @@ public class BDD implements AutoCloseable{
 	 */
 	private long findPosition(byte[] array) throws IOException {
 		//TODO complete
-		return -1;
+		long result = -1;
+
+		return result;
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -225,7 +229,7 @@ public class BDD implements AutoCloseable{
 	private long findPosition(long desiredLength) throws IOException {
 		Long position = findPositionIntoFreeSpace(desiredLength);
 		if(position == null){
-			this.raf.length();
+			position = this.raf.length();
 		}
 		return position;
 	}
@@ -237,8 +241,7 @@ public class BDD implements AutoCloseable{
 	 * @param desiredLength la taille souhaitée en octet
 	 * @return la position trouvée, ou null si aucune position n'a été trouvée
 	 */
-	private Long findPositionIntoFreeSpace(long desiredLength)
-	{
+	private Long findPositionIntoFreeSpace(long desiredLength)	{
 		long position = 0;
 		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
 			if(spaceInterval.getLength() >= desiredLength){
@@ -257,8 +260,10 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public boolean removeObject(String objectName) throws IOException {
-		//TODO complete
-		return false;
+		long position = 0;
+		position = this.links.get(objectName);
+		this.removeObject(position);
+		return position != -1;
 	}
 	/**
 	 * Cette fonction supprime l'objet trouvé à la position donnée en argument.
