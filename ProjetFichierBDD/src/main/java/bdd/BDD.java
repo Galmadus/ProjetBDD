@@ -133,8 +133,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public void putObject(String objectName, Serializable object) throws IOException {
-		byte[] array = new SerializationTools().serialize(object);
-		putData(objectName,array);
+		if(objectName != null){
+			byte[] array = new SerializationTools().serialize(object);
+			putData(objectName,array);
+		}else {
+			throw new NullPointerException();
+		}
 	}
 	/**
 	 * Ajout d'un enregistrement linéairement dans le fichier.
@@ -175,15 +179,19 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si l'object n'a pas pu être désérialisé
 	 */
 	public Serializable getObject(String objectName) throws IOException, ClassNotFoundException {
-		long pos = this.links.get(objectName);
-		byte[] record = new byte[0];
-		try {
-			record = readData(pos);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(objectName != null){
+			long pos = this.links.get(objectName);
+			byte[] record = new byte[0];
+			try {
+				record = readData(pos);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Serializable result = SerializationTools.deserialize(record);
+			return result;
+		}else{
+			throw new NullPointerException();
 		}
-		Serializable result = SerializationTools.deserialize(record);
-		return result;
 	}
 
 	/**
@@ -229,8 +237,10 @@ public class BDD implements AutoCloseable{
 	 */
 	private long findPosition(long desiredLength) throws IOException {
 		Long position = findPositionIntoFreeSpace(desiredLength);
-		if(position == null){
+		if(position != null){
 			position = this.raf.length();
+		}else{
+			throw new NullPointerException();
 		}
 		return position;
 	}
@@ -261,10 +271,14 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public boolean removeObject(String objectName) throws IOException {
-		long position = 0;
-		position = this.links.get(objectName);
-		this.removeObject(position);
-		return position != -1;
+		if(objectName != null) {
+			long position = 0;
+			position = this.links.get(objectName);
+			this.removeObject(position);
+			return position != -1;
+		}else{
+			throw new NullPointerException();
+		}
 	}
 	/**
 	 * Cette fonction supprime l'objet trouvé à la position donnée en argument.
@@ -318,11 +332,15 @@ public class BDD implements AutoCloseable{
 	 */
 	private void saveLinks() throws IOException {
 		removeLinks();
-		byte[] link_serialized = SerializationTools.serialize(this.links);
-		long position = findPosition(link_serialized);
-		writeData(link_serialized,position);
-		//J'ai un doute sur cette ligne
-		writeData(SerializationTools.serialize(position),LINKS_REFERENCE_POSITION);
+		if(this.links != null) {
+			byte[] link_serialized = SerializationTools.serialize(this.links);
+			long position = findPosition(link_serialized);
+			writeData(link_serialized, position);
+			//J'ai un doute sur cette ligne
+			writeData(SerializationTools.serialize(position), LINKS_REFERENCE_POSITION);
+		}else{
+			throw new NullPointerException();
+		}
 	}
 
 	/**
@@ -372,11 +390,15 @@ public class BDD implements AutoCloseable{
 	private void saveFreeSpaceTab() throws IOException {
 		//TODO complete
 		removeFreeSpaceTab();
-		byte[] data = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
-		long position = this.raf.length();
-		writeData(data, position);
-		//J'ai un doute sur cette ligne
-		writeData(SerializationTools.serialize(position),LINKS_REFERENCE_POSITION);
+		if(this.freeSpaceIntervals != null){
+			byte[] data = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
+			long position = this.raf.length();
+			writeData(data, position);
+			//J'ai un doute sur cette ligne
+			writeData(SerializationTools.serialize(position),LINKS_REFERENCE_POSITION);
+		}else{
+			throw new NullPointerException();
+		}
 	}
 
 	/**
@@ -387,10 +409,14 @@ public class BDD implements AutoCloseable{
 	private void readFreeSpaceTab() throws IOException {
 		try {
 			byte[] data = readData(SPACE_TAB_REFERENCE_POSITION);
+			if(this.freeSpaceIntervals != null) {
+				byte[] data2 = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
+			}else{
+				throw new NullPointerException();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		byte[] data2 = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
 	}
 
 	/**
@@ -401,7 +427,6 @@ public class BDD implements AutoCloseable{
 	 *
 	 */
 	private void removeFreeSpaceTab() throws IOException {
-		//TODO complete
 		if(SPACE_TAB_REFERENCE_POSITION > 16)
 			removeObject(SPACE_TAB_REFERENCE_POSITION);
 	}
