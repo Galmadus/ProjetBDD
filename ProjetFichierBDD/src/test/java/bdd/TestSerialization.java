@@ -73,4 +73,19 @@ public class TestSerialization {
 		byte[] data=SerializationTools.serializeFreeSpaceIntervals(freeSpaceIntervals);
 		Assert.assertEquals(data.length, 16*freeSpaceIntervals.size());
 	}
+
+
+/*
+Test supplémentaire pour vérifier la serialisation et deserialisation des free spaces
+	@Test
+	public void testSerializableFreeSpace() throws IOException, ClassNotFoundException {
+		TreeSet<BDD.FreeSpaceInterval> list=new TreeSet<BDD.FreeSpaceInterval>();
+		for (int i=0;i<10;i++)
+			list.add(new BDD.FreeSpaceInterval((long) ((long)i+Math.random()*100),(long)Math.random()*10));
+		byte[] data=SerializationTools.serializeFreeSpaceIntervals(list);
+		@SuppressWarnings("unchecked")
+		TreeSet<BDD.FreeSpaceInterval> list2=(TreeSet<BDD.FreeSpaceInterval>)SerializationTools.deserializeFreeSpaceIntervals(data);
+		Assert.assertEquals(list2, list,"The serialization/deserialization with freeSpaces does not work");
+	}*/
+
 }

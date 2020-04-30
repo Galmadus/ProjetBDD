@@ -1,6 +1,7 @@
 package bdd;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -25,6 +26,7 @@ class SerializationTools {
             obj.writeObject(o);
             obj.flush();
             obj.close();
+            tab.close();
             return tab.toByteArray();
         } else {
             throw new NullPointerException();
@@ -43,6 +45,8 @@ class SerializationTools {
         if (data != null) {
 			ByteArrayInputStream tab = new ByteArrayInputStream(data);
 			ObjectInputStream obj = new ObjectInputStream(tab);
+			tab.close();
+			obj.close();
 			return (Serializable) obj.readObject();
 		} else {
             throw new NullPointerException();
@@ -66,11 +70,15 @@ class SerializationTools {
         if (freeSpaceIntervals != null) {
             ByteArrayOutputStream tab = new ByteArrayOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(tab);
+            dataOutputStream.flush();
+            tab.flush();
             for(BDD.FreeSpaceInterval interval : freeSpaceIntervals){
                 dataOutputStream.writeLong(interval.getStartPosition());
                 dataOutputStream.writeLong(interval.getLength());
                 dataOutputStream.flush();
             }
+            dataOutputStream.close();
+            tab.close();
             return tab.toByteArray();
         } else {
             throw new NullPointerException();
@@ -86,8 +94,18 @@ class SerializationTools {
      */
     static TreeSet<BDD.FreeSpaceInterval> deserializeFreeSpaceIntervals(byte[] data) throws IOException {
         if (data != null) {
-            ByteArrayInputStream tab = new ByteArrayInputStream(data);
-            DataInputStream dataInputStream = new DataInputStream(tab);
+            TreeSet<BDD.FreeSpaceInterval> freeSpaceInterval = new TreeSet<BDD.FreeSpaceInterval>();
+            for(int i = 0; i < data.length; i = i+16){
+                try {
+                    ByteArrayInputStream tab = new ByteArrayInputStream(Arrays.copyOfRange(data, i, i+8));
+                    ObjectInputStream obj = new ObjectInputStream(tab);
+                    freeSpaceInterval.add((BDD.FreeSpaceInterval) obj.readObject());
+                    tab.close();
+                    obj.close();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         } else {
             throw new NullPointerException();
