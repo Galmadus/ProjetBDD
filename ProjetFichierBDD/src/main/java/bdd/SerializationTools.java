@@ -66,14 +66,12 @@ class SerializationTools {
         if (freeSpaceIntervals != null) {
             ByteArrayOutputStream tab = new ByteArrayOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(tab);
-            byte[] result = new byte[0];
             for(BDD.FreeSpaceInterval interval : freeSpaceIntervals){
-                dataOutputStream.writeUTF(String.valueOf(Integer.toBinaryString((int) interval.getStartPosition())));
-                dataOutputStream.writeUTF(String.valueOf(Integer.toBinaryString((int) interval.getLength())));
+                dataOutputStream.writeUTF(Integer.toBinaryString((int) interval.getStartPosition()));
+                dataOutputStream.writeUTF(Integer.toBinaryString((int) interval.getLength()));
                 dataOutputStream.flush();
-                result = tab.toByteArray();
             }
-            return result;
+            return tab.toByteArray();
         } else {
             throw new NullPointerException();
         }
