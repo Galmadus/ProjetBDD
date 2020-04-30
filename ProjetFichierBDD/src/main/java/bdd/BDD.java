@@ -385,7 +385,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void readFreeSpaceTab() throws IOException {
-		//TODO complete
 		try {
 			byte[] data = readData(SPACE_TAB_REFERENCE_POSITION);
 		} catch (Exception e) {
@@ -403,6 +402,8 @@ public class BDD implements AutoCloseable{
 	 */
 	private void removeFreeSpaceTab() throws IOException {
 		//TODO complete
+		if(SPACE_TAB_REFERENCE_POSITION > 16)
+			removeObject(SPACE_TAB_REFERENCE_POSITION);
 	}
 
 	@Override
