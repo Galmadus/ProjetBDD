@@ -351,7 +351,10 @@ public class BDD implements AutoCloseable{
 	 *
 	 */
 	private void removeLinks() throws IOException {
-		//TODO complete
+		if(LINKS_REFERENCE_POSITION > 16){
+			this.removeObject(LINKS_REFERENCE_POSITION);
+		}
+
 	}
 
 	/**
