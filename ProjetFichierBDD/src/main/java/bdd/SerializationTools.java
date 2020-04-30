@@ -67,8 +67,8 @@ class SerializationTools {
             ByteArrayOutputStream tab = new ByteArrayOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(tab);
             for(BDD.FreeSpaceInterval interval : freeSpaceIntervals){
-                dataOutputStream.writeUTF(Integer.toBinaryString((int) interval.getStartPosition()));
-                dataOutputStream.writeUTF(Integer.toBinaryString((int) interval.getLength()));
+                dataOutputStream.writeLong(interval.getStartPosition());
+                dataOutputStream.writeLong(interval.getLength());
                 dataOutputStream.flush();
             }
             return tab.toByteArray();
