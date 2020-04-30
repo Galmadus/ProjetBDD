@@ -317,7 +317,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void saveLinks() throws IOException {
-		//TODO complete
+		removeLinks();
+		byte[] link_serialized = SerializationTools.serialize(this.links);
+		long position = findPosition(link_serialized);
+		writeData(link_serialized,position);
+		//J'ai un doute sur cette ligne
+		writeData(SerializationTools.serialize(position),LINKS_REFERENCE_POSITION);
 	}
 
 	/**
@@ -327,7 +332,15 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si la désérialisation se passe mal.
 	 */
 	private void readLinks() throws IOException, ClassNotFoundException {
-		//TODO complete
+		try {
+			byte[] links = readData(LINKS_REFERENCE_POSITION);
+			Serializable links_deserialized = SerializationTools.deserialize(links);
+			//Ou retourner un Serializable en fonction d'où on s'en servira
+			this.links = (HashMap<String, Long>) links_deserialized;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
