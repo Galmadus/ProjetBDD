@@ -1,5 +1,6 @@
 package bdd;
 
+import java.awt.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -179,18 +180,33 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si l'object n'a pas pu être désérialisé
 	 */
 	public Serializable getObject(String objectName) throws IOException, ClassNotFoundException {
-		if(objectName != null){
-			long pos = this.links.get(objectName);
-			byte[] record = new byte[0];
-			try {
-				record = readData(pos);
-			} catch (Exception e) {
-				e.printStackTrace();
+		System.out.println("obj : " + objectName);
+		System.out.println(this.links);
+		try {
+			if(objectName == null){
+				System.out.println("null");
+				throw new NullPointerException();
 			}
-			Serializable result = SerializationTools.deserialize(record);
-			return result;
-		}else{
-			throw new NullPointerException();
+			if (this.links.get(objectName) != null) {
+				long pos = this.links.get(objectName);
+				byte[] record = new byte[0];
+				try {
+					record = readData(pos);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				Serializable result = null;
+				try {
+					result = SerializationTools.deserialize(record);
+				} catch (ClassNotFoundException e) {
+					throw new ClassNotFoundException();
+				}
+				return result;
+			} else {
+				return null;
+			}
+		} catch (IOException e) {
+			 throw new IOException();
 		}
 	}
 
@@ -355,6 +371,8 @@ public class BDD implements AutoCloseable{
 			Serializable links_deserialized = SerializationTools.deserialize(links);
 			//Ou retourner un Serializable en fonction d'où on s'en servira
 			this.links = (HashMap<String, Long>) links_deserialized;
+			System.out.println("links");
+			System.out.println(this.links);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
