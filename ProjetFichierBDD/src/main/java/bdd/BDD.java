@@ -398,16 +398,17 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void saveFreeSpaceTab() throws IOException {
-		//TODO complete
-		removeFreeSpaceTab();
-		if(this.freeSpaceIntervals != null){
-			byte[] data = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
-			long position = this.raf.length();
-			writeData(data, position);
-			//J'ai un doute sur cette ligne
-			writeData(SerializationTools.serialize(position),LINKS_REFERENCE_POSITION);
-		}else{
-			throw new NullPointerException();
+		try{
+			removeFreeSpaceTab();
+			byte[] array = SerializationTools.serializeFreeSpaceIntervals(freeSpaceIntervals);
+			long l = findPosition(array);
+			writeData(array,l);
+			raf.seek(SPACE_TAB_REFERENCE_POSITION);
+			raf.writeLong(l);
+		}
+		catch(Exception ex){
+			System.out.println(ex);
+			throw ex;
 		}
 	}
 
@@ -417,15 +418,15 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void readFreeSpaceTab() throws IOException {
-		try {
-			byte[] data = readData(SPACE_TAB_REFERENCE_POSITION);
-			if(this.freeSpaceIntervals != null) {
-				byte[] data2 = SerializationTools.serializeFreeSpaceIntervals(this.freeSpaceIntervals);
-			}else{
-				throw new NullPointerException();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		try{
+			raf.seek(SPACE_TAB_REFERENCE_POSITION);
+			long pos = raf.readLong();
+			byte[] array = readData(pos);
+			freeSpaceIntervals =  SerializationTools.deserializeFreeSpaceIntervals(array);
+		}
+		catch(Exception ex){
+			System.out.println(ex);
+			throw ex;
 		}
 	}
 
