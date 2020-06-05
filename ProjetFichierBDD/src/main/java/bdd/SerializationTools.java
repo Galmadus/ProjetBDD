@@ -1,8 +1,7 @@
 package bdd;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.nio.ByteBuffer;
 import java.util.TreeSet;
 
 /**
@@ -75,7 +74,7 @@ class SerializationTools {
             for(BDD.FreeSpaceInterval interval : freeSpaceIntervals){
                 dataOutputStream.writeLong(interval.getStartPosition());
                 dataOutputStream.writeLong(interval.getLength());
-                dataOutputStream.flush();
+                //dataOutputStream.flush();
             }
             dataOutputStream.close();
             tab.close();
@@ -95,18 +94,21 @@ class SerializationTools {
     static TreeSet<BDD.FreeSpaceInterval> deserializeFreeSpaceIntervals(byte[] data) throws IOException {
         if (data != null) {
             TreeSet<BDD.FreeSpaceInterval> freeSpaceInterval = new TreeSet<BDD.FreeSpaceInterval>();
-            for (int i = 0; i < data.length; i = i + 16) {
-                try {
-                    ByteArrayInputStream tab = new ByteArrayInputStream(data);
-                    ObjectInputStream obj = new ObjectInputStream(tab);
-                    freeSpaceInterval.add((BDD.FreeSpaceInterval) obj.readObject());
-                    tab.close();
-                    obj.close();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+            ByteArrayInputStream tab = new ByteArrayInputStream(data);
+            byte[] premier = new byte[8];
+            byte[] second = new byte[8];
+
+            ByteBuffer premier_buffer = ByteBuffer.wrap(premier);
+            long position1 = premier_buffer.getLong();
+
+            ByteBuffer second_buffer = ByteBuffer.wrap(second);
+            long position2 = second_buffer.getLong();
+
+            while (tab.read(premier) != -1 && tab.read(second) != -1) {
+                freeSpaceInterval.add(new BDD.FreeSpaceInterval(position1, position2));
             }
-            return null;
+            tab.close();
+            return freeSpaceInterval;
         } else {
             throw new NullPointerException();
         }
