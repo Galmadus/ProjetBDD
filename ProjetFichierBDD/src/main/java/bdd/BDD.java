@@ -233,7 +233,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		return findPosition(array.length);
+		return findPosition(array.length+4);
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -245,11 +245,10 @@ public class BDD implements AutoCloseable{
 	 */
 	private long findPosition(long desiredLength) throws IOException {
 		Long position = findPositionIntoFreeSpace(desiredLength);
-		if(position != null){
-			return 1;
-		}else{
+		if(position == null){
 			return this.raf.length();
 		}
+		return position;
 	}
 
 	/**
@@ -260,11 +259,10 @@ public class BDD implements AutoCloseable{
 	 * @return la position trouvée, ou null si aucune position n'a été trouvée
 	 */
 	private Long findPositionIntoFreeSpace(long desiredLength)	{
-		long position = 0;
 		for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
 			if(spaceInterval.getLength() >= desiredLength){
-				position = spaceInterval.getStartPosition();
-				return position;
+				freeSpaceIntervals.remove(spaceInterval);
+				return spaceInterval.getStartPosition();
 			}
 		}
 		return null;
@@ -300,27 +298,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void removeObject(long pos) throws IOException {
-		try {
-			int size = this.readData(pos).length;
-			if( (this.raf.length()-pos) == size ){
-				// Trunk
-			}else{
-				for (FreeSpaceInterval spaceInterval:this.freeSpaceIntervals){
-					//Si il y a un autre espace vide a droite, on fusione
-					if(spaceInterval.getStartPosition() == (pos+size)){
-						//TODO Delete spaceInterval
-						size += spaceInterval.getLength();
-					}
-					//Si il y a un autre espace vide a gauche, on fusione
-					if(spaceInterval.getStartPosition() == (pos-size)){
-						//TODO Delete spaceInterval
-						pos = spaceInterval.getStartPosition();
-					}
-				}
-				this.freeSpaceIntervals.add(new FreeSpaceInterval(pos, size));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		raf.seek(pos);
+		int position = raf.readInt();
+		if (raf.length() - 1 == pos + 3 + position) {
+			raf.setLength(raf.length() - position - 4);
+		} else {
+			freeSpaceIntervals.add(new FreeSpaceInterval(pos, position));
 		}
 	}
 
@@ -339,15 +322,11 @@ public class BDD implements AutoCloseable{
 	 */
 	private void saveLinks() throws IOException {
 		removeLinks();
-		if(this.links != null) {
-			byte[] link_serialized = SerializationTools.serialize(this.links);
-			long position = findPosition(link_serialized);
-			writeData(link_serialized, position);
-			//J'ai un doute sur cette ligne
-			writeData(SerializationTools.serialize(position), LINKS_REFERENCE_POSITION);
-		}else{
-			throw new NullPointerException();
-		}
+		byte[] link_serialized = SerializationTools.serialize(this.links);
+		long position = findPosition(link_serialized);
+		writeData(link_serialized, position);
+		raf.seek(LINKS_REFERENCE_POSITION);
+		raf.writeLong(position);
 	}
 
 	/**
